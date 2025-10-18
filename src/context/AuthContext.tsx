@@ -1,6 +1,5 @@
-import axiosClient from "lib/axiosClient";
-import {createContext, useContext, useState, useEffect, ReactNode} from "react";
-import {useNavigate} from "react-router-dom";
+import axiosClient from '../lib/axiosClient';
+import {createContext, useContext, useState, ReactNode, useEffect} from 'react';
 
 type User = {
   id: string;
@@ -18,13 +17,13 @@ type AuthContextData = {
 
 const AuthContext = createContext<AuthContextData | undefined>(undefined);
 
-export default function AuthProvider({children}: {children: ReactNode}) {
+const AuthProvider = function ({children}: {children: ReactNode}) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const [houseId, setHouseId] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("accessToken");
+    const storedToken = localStorage.getItem('accessToken');
     if (storedToken) {
       setToken(storedToken);
     }
@@ -32,28 +31,29 @@ export default function AuthProvider({children}: {children: ReactNode}) {
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem("accessToken", token);
+      localStorage.setItem('accessToken', token);
     }
   }, [token]);
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axiosClient.post("/auth/login", {email, password});
-      const {token: authToken, user: authUser} = response.data;
-      localStorage.setItem("accessToken", authToken);
+      const response = await axiosClient.post('/auth/login', {email, password});
+      const {token: authToken, user: authUser, houseId} = response.data;
+      localStorage.setItem('accessToken', authToken);
+      localStorage.setItem('houseId', houseId);
+
       setToken(authToken);
       setUser(authUser);
-      navigate("/dashboard");
+      setHouseId(houseId);
     } catch (error) {
-      console.error("Error:", error);
+      console.error('Error:', error);
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("accessToken");
+    localStorage.removeItem('accessToken');
     setToken(null);
     setUser(null);
-    navigate("/login");
   };
 
   return (
@@ -61,12 +61,14 @@ export default function AuthProvider({children}: {children: ReactNode}) {
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
 export const useAuth = (): AuthContextData => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth precisa ser usado dentro de um AuthProvider");
+    throw new Error('useAuth precisa ser usado dentro de um AuthProvider');
   }
   return context;
 };
+
+export default AuthProvider;

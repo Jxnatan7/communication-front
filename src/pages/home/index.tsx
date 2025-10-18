@@ -1,30 +1,105 @@
-import icon from '@assets/images/logo.svg';
-import css from './index.module.css';
-import cla from 'classnames';
-import {FC} from 'react';
-import {useCountState} from '@stores';
+import React from 'react';
+import {Box, Button, Card, CardContent, Modal, Typography} from '@mui/material';
+import {useNavigate} from 'react-router-dom';
+import {useAuth} from '../../context/AuthContext';
+import {LOGIN_PATH} from '../../routes';
+import Header from '../../components/Header';
+import CommunicationList from '../../components/CommunicationList';
+import CommunicationContextProvider from '../../context/CommunicationContext';
+import useValidateCommunication from '../../hooks/useValidateCommunication';
 
-const Home: FC = function () {
-  const {count, inc, dec} = useCountState();
+const styles = {
+  container: {
+    width: '100vw',
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    backgroundColor: '#dcdfc5',
+    paddingBottom: 6,
+  },
+};
+
+const Home = function () {
+  const {token} = useAuth();
+  const navigate = useNavigate();
+  const {mutateAsync} = useValidateCommunication();
+  const [openModal, setOpenModal] = React.useState(false);
+  const [communicationId, setCommunicationId] = React.useState<string | null>(
+    null,
+  );
+
+  const handleOpenChat = (chatId?: string, communicationId?: string) => {
+    if (!chatId && communicationId) {
+      setOpenModal(true);
+      setCommunicationId(communicationId);
+      return;
+    }
+    navigate(`/chat/${chatId}`);
+  };
+
+  const handleValidateCommunication = () => {
+    if (communicationId) {
+      mutateAsync({communicationId, status: 'ACCEPTED'})
+        .then(() => {
+          setOpenModal(false);
+          setCommunicationId(null);
+        })
+        .finally(() => {
+          window.location.reload();
+        });
+    }
+  };
+
+  if (!token) {
+    navigate(LOGIN_PATH);
+    return null;
+  }
 
   return (
-    <>
-      <img src={icon} className={css.icon} />
-      <h1 className={cla([css.title, css.name, {[css.titleRed]: count >= 5}])}>
-        React
-      </h1>
-      <h2 className={css.title} data-testid="title" id="title">
-        count is {count}
-      </h2>
-      <div className={css.btnGroup}>
-        <button onClick={inc} data-testid="inc_btn" id="inc_btn">
-          increment
-        </button>
-        <button onClick={dec} data-testid="dec_btn" id="dec_btn">
-          decrease
-        </button>
-      </div>
-    </>
+    <CommunicationContextProvider>
+      <Box sx={styles.container}>
+        <Header />
+        <CommunicationList onOpenChat={handleOpenChat} />
+      </Box>
+      <Modal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        sx={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+      >
+        <Card
+          sx={{
+            width: '80%',
+            height: 250,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <CardContent>
+            <Typography variant="h5" sx={{textAlign: 'center'}}>
+              Deseja aceitar essa comunicação?
+            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 2,
+                mt: 6,
+              }}
+            >
+              <Button variant="outlined" onClick={() => setOpenModal(false)}>
+                Cancelar
+              </Button>
+              <Button variant="contained" onClick={handleValidateCommunication}>
+                Aceitar
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+      </Modal>
+    </CommunicationContextProvider>
   );
 };
 
