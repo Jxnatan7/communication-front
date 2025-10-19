@@ -26,6 +26,8 @@ const AuthProvider = function ({children}: {children: ReactNode}) {
     const storedToken = localStorage.getItem('accessToken');
     if (storedToken) {
       setToken(storedToken);
+    } else {
+      setToken(null);
     }
   }, []);
 

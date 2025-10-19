@@ -17,4 +17,9 @@ export default class CommunicationRequestService {
     );
     return response.data;
   }
+
+  static async create(data: any) {
+    const response = await axiosClient.post('/communication-requests', data);
+    return response.data;
+  }
 }

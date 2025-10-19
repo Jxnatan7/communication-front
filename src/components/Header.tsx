@@ -1,6 +1,6 @@
 import {Box, Typography} from '@mui/material';
 
-const Header = function () {
+const Header = function ({title}: {title?: string}) {
   return (
     <Box
       sx={{
@@ -14,7 +14,7 @@ const Header = function () {
       }}
     >
       <Typography variant="h4" fontWeight={700} color="#fff">
-        Veja suas comunicações
+        {title || 'Veja suas comunicações'}
       </Typography>
     </Box>
   );

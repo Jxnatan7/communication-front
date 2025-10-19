@@ -1,15 +1,21 @@
-import {Box, Button, Input, Typography} from '@mui/material';
+import {Box, Button, Input} from '@mui/material';
 import {useAuth} from '../../context/AuthContext';
 import {Formik} from 'formik';
 import {useNavigate} from 'react-router-dom';
-import {HOME_PATH} from '../../routes';
+import {SELECT_PROVIDER_PATH, HOME_PATH} from '../../routes';
+import Header from '../../components/Header';
 
 const LoginPage = function () {
   const {login, token, setToken} = useAuth();
   const navigate = useNavigate();
 
+  const handleNavigate = () => {
+    navigate(SELECT_PROVIDER_PATH);
+  };
+
   if (token) {
-    return navigate(HOME_PATH);
+    navigate(HOME_PATH);
+    return;
   }
 
   return (
@@ -23,21 +29,7 @@ const LoginPage = function () {
         backgroundColor: '#dcdfc5',
       }}
     >
-      <Box
-        sx={{
-          width: '100%',
-          height: 100,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#495848',
-          marginBottom: '50px',
-        }}
-      >
-        <Typography variant="h4" fontWeight={700} color="#fff">
-          Faça o seu Login
-        </Typography>
-      </Box>
+      <Header title="Login" />
       <Formik
         initialValues={{email: '', password: ''}}
         validate={values => {
@@ -132,6 +124,23 @@ const LoginPage = function () {
           </form>
         )}
       </Formik>
+
+      <Button
+        onClick={handleNavigate}
+        variant="outlined"
+        sx={{
+          width: '300px',
+          height: '50px',
+          backgroundColor: '#fff',
+          color: '#000',
+          fontSize: '16px',
+          fontWeight: 700,
+          '&:hover': {backgroundColor: '#000', color: '#fff'},
+          marginTop: '50px',
+        }}
+      >
+        Falar com uma pessoa
+      </Button>
     </Box>
   );
 };

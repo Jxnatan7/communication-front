@@ -2,7 +2,7 @@ import React from 'react';
 import {Box, Button, Card, CardContent, Modal, Typography} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import {useAuth} from '../../context/AuthContext';
-import {LOGIN_PATH} from '../../routes';
+import {CHAT_LINK, LOGIN_PATH} from '../../routes';
 import Header from '../../components/Header';
 import CommunicationList from '../../components/CommunicationList';
 import CommunicationContextProvider from '../../context/CommunicationContext';
@@ -20,7 +20,7 @@ const styles = {
   },
 };
 
-const Home = function () {
+const HomePage = function () {
   const {token} = useAuth();
   const navigate = useNavigate();
   const {mutateAsync} = useValidateCommunication();
@@ -35,7 +35,7 @@ const Home = function () {
       setCommunicationId(communicationId);
       return;
     }
-    navigate(`/chat/${chatId}`);
+    navigate(CHAT_LINK(chatId || ''));
   };
 
   const handleValidateCommunication = () => {
@@ -103,4 +103,4 @@ const Home = function () {
   );
 };
 
-export default Home;
+export default HomePage;
